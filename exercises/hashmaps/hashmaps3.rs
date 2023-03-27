@@ -14,7 +14,7 @@
 
 // Execute `rustlings hint hashmaps3` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
+// I AM DONE
 
 use std::collections::HashMap;
 
@@ -23,6 +23,12 @@ struct Team {
     name: String,
     goals_scored: u8,
     goals_conceded: u8,
+}
+
+impl Team {
+    fn new(name: String, goals_scored:u8, goals_conceded: u8) -> Self {
+        Team { name, goals_conceded, goals_scored, }
+    }
 }
 
 fn build_scores_table(results: String) -> HashMap<String, Team> {
@@ -40,6 +46,41 @@ fn build_scores_table(results: String) -> HashMap<String, Team> {
         // will be number of goals conceded from team_2, and similarly
         // goals scored by team_2 will be the number of goals conceded by
         // team_1.
+
+        // 参考RUST圣经的写法
+        let team1 = scores
+            .entry(team_1_name.clone()) // 我们不想team_1_name被借用，这回导致后续的插入出现问题
+            .or_insert(Team::new(team_1_name, 0, 0)); // or_insert返回entry
+        (*team1).goals_scored   += team_1_score;
+        (*team1).goals_conceded += team_2_score;
+
+        let team2 = scores
+            .entry(team_2_name.clone())
+            .or_insert(Team::new(team_2_name, 0, 0));
+        (*team2).goals_scored   += team_2_score;
+        (*team2).goals_conceded += team_1_score;
+
+        // 另外一种写法
+        // if !scores.contains_key(&team_1_name) {
+        //     // let mut team1 = Team::new(team_1_name.clone(), team_1_score, team_2_score);
+        //     // scores.insert(team_1_name, team1);
+        //     scores.insert(team_1_name.clone(), Team::new(team_1_name, team_1_score, team_2_score));
+        // } else {
+        //     if let Some(team1) = scores.get_mut(&team_1_name) {
+        //         team1.goals_scored   += team_1_score;
+        //         team1.goals_conceded += team_2_score;
+        //     }
+        // }
+        // if !scores.contains_key(&team_2_name) {
+        //     // let mut team2 = Team::new(team_2_name.clone(), team_2_score, team_1_score);
+        //     // scores.insert(team_2_name, team2);
+        //     scores.insert(team_2_name.clone(), Team::new(team_2_name, team_2_score, team_1_score));
+        // } else {
+        //     if let Some(team2) = scores.get_mut(&team_2_name) {
+        //         team2.goals_scored   += team_2_score;
+        //         team2.goals_conceded += team_1_score;
+        //     }
+        // }
     }
     scores
 }
