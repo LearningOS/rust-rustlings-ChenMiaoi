@@ -7,12 +7,18 @@
 // pass! Make the test fail!
 // Execute `rustlings hint tests1` or use the `hint` watch subcommand for a hint.
 
-// I AM NOT DONE
+// I AM DONE
+
+pub fn is_ten(a: i32) -> bool {
+    a == 10
+}
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
     #[test]
     fn you_can_assert() {
-        assert!();
+        assert!(is_ten(10));
     }
 }
