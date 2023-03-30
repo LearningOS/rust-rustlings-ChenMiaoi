@@ -23,7 +23,7 @@ enum IntoColorError {
     IntConversion,
 }
 
-// I AM NOT DONE
+// I AM DONE
 
 // Your task is to complete this implementation
 // and return an Ok result of inner type Color.
@@ -34,10 +34,37 @@ enum IntoColorError {
 // but the slice implementation needs to check the slice length!
 // Also note that correct RGB color values must be integers in the 0..=255 range.
 
+// 为try_info实现特征
+impl From<std::num::TryFromIntError> for IntoColorError {
+    fn from(value: std::num::TryFromIntError) -> Self {
+        Self::IntConversion
+    }
+}
+
 // Tuple implementation
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
+        // ??? 不太可行？怎么返回对应的错误类型呢
+        // Ok(Self {
+        //     red: match tuple.0.try_into() {
+        //         Ok(x) => x,
+        //         Err(err) => IntoColorError::IntConversion // u8 -> Error
+        //     },
+        //     green: match tuple.1.try_into() {
+                
+        //     },
+        //     blue: match tuple.2.try_into() {
+                
+        //     },
+        // })
+
+        // ?倒是可以，而且解决了0..=255
+        Ok(Self { 
+            red: tuple.0.try_into()?,
+            green: tuple.1.try_into()?, 
+            blue: tuple.2.try_into()?,
+        })
     }
 }
 
@@ -45,6 +72,11 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
+        Ok(Self {
+            red: arr[0].try_into()?,
+            green: arr[1].try_into()?,
+            blue: arr[2].try_into()?,
+        })
     }
 }
 
@@ -52,6 +84,15 @@ impl TryFrom<[i16; 3]> for Color {
 impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
+        if slice.len() == 3 {
+            Ok(Self {
+                red: slice[0].try_into()?,
+                green: slice[1].try_into()?,
+                blue: slice[2].try_into()?,
+            })
+        }else {
+            Err(IntoColorError::BadLen)
+        }
     }
 }
 
