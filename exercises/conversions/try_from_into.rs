@@ -45,26 +45,24 @@ impl From<std::num::TryFromIntError> for IntoColorError {
 impl TryFrom<(i16, i16, i16)> for Color {
     type Error = IntoColorError;
     fn try_from(tuple: (i16, i16, i16)) -> Result<Self, Self::Error> {
-        // ??? 不太可行？怎么返回对应的错误类型呢
-        // Ok(Self {
-        //     red: match tuple.0.try_into() {
-        //         Ok(x) => x,
-        //         Err(err) => IntoColorError::IntConversion // u8 -> Error
-        //     },
-        //     green: match tuple.1.try_into() {
-                
-        //     },
-        //     blue: match tuple.2.try_into() {
-                
-        //     },
-        // })
+        // 一种可行的方法
+        if tuple.0 >= 0 && tuple.1 >= 0 && tuple.2 >= 0
+        && tuple.0 <= 255 && tuple.1 <= 255 && tuple.2 <= 255 {
+            Ok(Color { 
+                red: tuple.0 as u8, 
+                green: tuple.1 as u8, 
+                blue: tuple.2 as u8 
+            })
+        }else {
+            Err(IntoColorError::IntConversion)
+        }
 
         // ?倒是可以，而且解决了0..=255
-        Ok(Self { 
-            red: tuple.0.try_into()?,
-            green: tuple.1.try_into()?, 
-            blue: tuple.2.try_into()?,
-        })
+        // Ok(Self { 
+        //     red: tuple.0.try_into()?,
+        //     green: tuple.1.try_into()?, 
+        //     blue: tuple.2.try_into()?,
+        // })
     }
 }
 
@@ -72,11 +70,22 @@ impl TryFrom<(i16, i16, i16)> for Color {
 impl TryFrom<[i16; 3]> for Color {
     type Error = IntoColorError;
     fn try_from(arr: [i16; 3]) -> Result<Self, Self::Error> {
-        Ok(Self {
-            red: arr[0].try_into()?,
-            green: arr[1].try_into()?,
-            blue: arr[2].try_into()?,
-        })
+        if arr[0] >= 0 && arr[1] >= 0 && arr[2] >= 0
+        && arr[0] <= 255 && arr[1] <= 255 && arr[2] <= 255 {
+            Ok(Color { 
+                red: arr[0] as u8, 
+                green: arr[1] as u8, 
+                blue: arr[2] as u8 
+            })
+        }else {
+            Err(IntoColorError::IntConversion)
+        }
+
+        // Ok(Self {
+        //     red: arr[0].try_into()?,
+        //     green: arr[1].try_into()?,
+        //     blue: arr[2].try_into()?,
+        // })
     }
 }
 
@@ -85,11 +94,21 @@ impl TryFrom<&[i16]> for Color {
     type Error = IntoColorError;
     fn try_from(slice: &[i16]) -> Result<Self, Self::Error> {
         if slice.len() == 3 {
-            Ok(Self {
-                red: slice[0].try_into()?,
-                green: slice[1].try_into()?,
-                blue: slice[2].try_into()?,
+            if slice[0] >= 0 && slice[1] >= 0 && slice[2] >= 0
+            && slice[0] <= 255 && slice[1] <= 255 && slice[2] <= 255 {
+                Ok(Color { 
+                    red: slice[0] as u8, 
+                    green: slice[1] as u8, 
+                    blue: slice[2] as u8 
             })
+            }else {
+                Err(IntoColorError::IntConversion)
+            }
+            // Ok(Self {
+            //     red: slice[0].try_into()?,
+            //     green: slice[1].try_into()?,
+            //     blue: slice[2].try_into()?,
+            // })
         }else {
             Err(IntoColorError::BadLen)
         }
